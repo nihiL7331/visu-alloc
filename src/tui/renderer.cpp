@@ -61,6 +61,7 @@ void Renderer::draw_frame() {
     frame += '\n';
   }
 
+  frame += DEFAULT_COLOR;
   std::cout << frame << std::flush;
 }
 
