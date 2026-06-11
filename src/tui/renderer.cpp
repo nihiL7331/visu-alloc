@@ -18,6 +18,9 @@ namespace visu {
 volatile sig_atomic_t g_terminal_resized = false;
 
 #define CURSOR_00 "\033[H" // places cursor at (1,1)
+#define CURSOR_HIDE "\033[?25l"
+#define CURSOR_SHOW "\033[?25h"
+#define CLEAR_SCREEN "\033[2J"
 #define DEFAULT_COLOR "\033[0m"
 #define DEFAULT_WIN_SIZE {24, 80}
 
@@ -34,13 +37,15 @@ void Renderer::start() {
   std::signal(SIGWINCH, sigwinch_handler);
 #endif
 
+  std::cout << CURSOR_HIDE << CLEAR_SCREEN << std::flush;
+
   while (m_running) {
 #ifndef _WIN32
     if (g_terminal_resized) {
       m_frame_size = get_term_size();
       m_frame_data.assign(m_frame_size.cols * m_frame_size.rows, Cell{});
 
-      std::cout << "\033[2J" << std::flush;
+      std::cout << CLEAR_SCREEN << std::flush;
     }
 #endif
 
@@ -48,6 +53,8 @@ void Renderer::start() {
     draw_frame();
     std::this_thread::sleep_for(std::chrono::milliseconds(16));
   }
+
+  std::cout << CURSOR_SHOW << std::flush;
 }
 
 void Renderer::init_frame(std::string& frame) {
