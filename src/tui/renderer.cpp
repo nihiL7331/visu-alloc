@@ -4,6 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <csignal>
 
 #ifdef _WIN32
   
@@ -14,20 +15,40 @@
 
 namespace visu {
 
+volatile sig_atomic_t g_terminal_resized = false;
+
+#define CURSOR_00 "\033[H" // places cursor at (1,1)
+#define DEFAULT_COLOR "\033[0m"
+#define DEFAULT_WIN_SIZE {24, 80}
+
+void sigwinch_handler(int) {
+  g_terminal_resized = true;
+}
+
 void Renderer::start() {
   m_frame_size = get_term_size();
   m_frame_data = std::vector<Cell>(m_frame_size.cols * m_frame_size.rows);
   m_running = true;
 
+#ifndef _WIN32
+  std::signal(SIGWINCH, sigwinch_handler);
+#endif
+
   while (m_running) {
+#ifndef _WIN32
+    if (g_terminal_resized) {
+      m_frame_size = get_term_size();
+      m_frame_data.assign(m_frame_size.cols * m_frame_size.rows, Cell{});
+
+      std::cout << "\033[2J" << std::flush;
+    }
+#endif
+
+
     draw_frame();
     std::this_thread::sleep_for(std::chrono::milliseconds(16));
   }
 }
-
-#define CURSOR_00 "\033[H" // places cursor at (1,1)
-#define DEFAULT_COLOR "\033[0m"
-#define DEFAULT_WIN_SIZE {24, 80}
 
 void Renderer::init_frame(std::string& frame) {
   frame += CURSOR_00;
