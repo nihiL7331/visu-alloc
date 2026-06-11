@@ -34,7 +34,7 @@ void Renderer::init_frame(std::string& frame) {
 }
 
 void Renderer::update_cell(std::uint16_t pos_x, std::uint16_t pos_y, char c, const std::string& color) {
-  if (pos_x >= 0 && pos_x < m_frame_size.cols && pos_y >= 0 && pos_y < m_frame_size.rows)
+  if (pos_x < m_frame_size.cols && pos_y < m_frame_size.rows)
     m_frame_data[pos_y * m_frame_size.cols + pos_x] = {c, color};
 }
 
