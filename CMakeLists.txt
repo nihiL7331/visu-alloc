@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(visu-alloc
   src/main.cpp
+  src/tui/renderer.cpp
 )
 
 add_custom_target(run
