@@ -17,11 +17,11 @@ namespace visu {
 
 volatile sig_atomic_t g_terminal_resized = false;
 
-#define CURSOR_00 "\033[H" // places cursor at (1,1)
-#define CURSOR_HIDE "\033[?25l"
-#define CURSOR_SHOW "\033[?25h"
-#define CLEAR_SCREEN "\033[2J"
-#define DEFAULT_COLOR "\033[0m"
+#define ANSI_CURSOR_00 "\033[H" // places cursor at (1,1)
+#define ANSI_CURSOR_HIDE "\033[?25l"
+#define ANSI_CURSOR_SHOW "\033[?25h"
+#define ANSI_CLEAR_SCREEN "\033[2J"
+#define ANSI_DEFAULT_COLOR "\033[0m"
 #define DEFAULT_WIN_SIZE {24, 80}
 
 void sigwinch_handler(int) {
@@ -37,7 +37,7 @@ void Renderer::start() {
   std::signal(SIGWINCH, sigwinch_handler);
 #endif
 
-  std::cout << CURSOR_HIDE << CLEAR_SCREEN << std::flush;
+  std::cout << ANSI_CURSOR_HIDE << ANSI_CLEAR_SCREEN << std::flush;
 
   while (m_running) {
 #ifndef _WIN32
@@ -45,7 +45,7 @@ void Renderer::start() {
       m_frame_size = get_term_size();
       m_frame_data.assign(m_frame_size.cols * m_frame_size.rows, Cell{});
 
-      std::cout << CLEAR_SCREEN << std::flush;
+      std::cout << ANSI_CLEAR_SCREEN << std::flush;
     }
 #endif
 
@@ -54,11 +54,11 @@ void Renderer::start() {
     std::this_thread::sleep_for(std::chrono::milliseconds(16));
   }
 
-  std::cout << CURSOR_SHOW << std::flush;
+  std::cout << ANSI_CURSOR_SHOW << std::flush;
 }
 
 void Renderer::init_frame(std::string& frame) {
-  frame += CURSOR_00;
+  frame += ANSI_CURSOR_00;
 }
 
 void Renderer::update_cell(std::uint16_t pos_x, std::uint16_t pos_y, char c, const std::string& color) {
@@ -72,7 +72,7 @@ void Renderer::draw_frame() {
 
   init_frame(frame);
 
-  std::string curr_col = DEFAULT_COLOR;
+  std::string curr_col = ANSI_DEFAULT_COLOR;
 
   for (std::uint16_t pos_y = 0; pos_y < m_frame_size.rows; ++pos_y) {
     for (std::uint16_t pos_x = 0; pos_x < m_frame_size.cols; ++pos_x) {
@@ -89,7 +89,7 @@ void Renderer::draw_frame() {
     frame += '\n';
   }
 
-  frame += DEFAULT_COLOR;
+  frame += ANSI_DEFAULT_COLOR;
   std::cout << frame << std::flush;
 }
 
